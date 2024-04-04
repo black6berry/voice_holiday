@@ -1,31 +1,54 @@
 import psycopg2
+from core.db.postgres_config import conn
 
 def sql_start():
-
-  global conn, cur
-  conn = psycopg2.connect('voice_holiday_db')
+  conn.autocommit = True
   cur = conn.cursor()
-  if conn:
-    print('Подключение в базе данных...')
-    print('База данных подключена')
-  else:
-    print('Не удалось подключится к базе данных')
+  
+  # with conn as cur:
   try:
-    cur.execute(
-    """CREATE TABLE IF NOT EXISTS user( 
-      user_id INTEGER NOT NULL,
-      username TEXT NOT NULL,
-      chat_id INTEGER NOT NULL,
-      is_admin INTEGER DEFAULT (0) NOT NULL,
-      application_form_id INTEGER,
-      CONSTRAINT user_pk PRIMARY KEY (username),
-      CONSTRAINT user_application_form_FK FOREIGN KEY (application_form_id) REFERENCES application_form(id) ON DELETE SET NULL
-    );
-    """)
+    if conn:
+      print('Подключение в базе данных...')
+      print('База данных подключена')
+      
+    else:
+      print('Не удалось подключится к базе данных')
 
+      # Создание БД
+      cur.execute("""
+      CREATE DATABASE voice_holiday
+      WITH
+      OWNER = "userAdministrator"
+      ENCODING = 'UTF8'
+      LC_COLLATE = 'Russian_Russia.utf8'
+      LC_CTYPE = 'Russian_Russia.utf8'
+      LOCALE_PROVIDER = 'libc'
+      CONNECTION LIMIT = -1
+      IS_TEMPLATE = False;""")
+
+      cur.execute("""
+      CREATE TABLE IF NOT EXISTS public.student_group
+      (
+        id integer NOT NULL,
+        name character varying(50) COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT student_group_pkey PRIMARY KEY (id)
+      )
+      """)
+
+      cur.execute("""
+      CREATE TABLE IF NOT EXISTS public."user"
+      (
+        id bigint NOT NULL,
+        firstname character varying(50) COLLATE pg_catalog."default" NOT NULL,
+        lastname character varying(50) COLLATE pg_catalog."default" NOT NULL,
+        datebirthday date,
+        student_group_id integer,
+        CONSTRAINT user_pkey PRIMARY KEY (id)
+      )
+      """)
+      cur.connection.commit()
   except psycopg2.Error as error:
-    print("Ошибка при работе с SQLite", error)
+    print("Ошибка при работе с PostgreSQL", error)
   finally:
     if conn:
-      conn.close()
-      print("Соединение с SQLite закрыто.\nБАЗА ДАННЫХ СОЗДАНА")
+      print("Соединение с PostgreSQL открыто.")

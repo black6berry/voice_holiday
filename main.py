@@ -12,29 +12,25 @@ from core.db.database import sql_start
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID1 = os.getenv("ADMIN_ID1")
-ADMIN_ID2 = os.getenv("ADMIN_ID2")
+ADMIN_ID = os.getenv("ADMIN_ID")
 
-admin_list = (ADMIN_ID1, ADMIN_ID2)
 
 router = Router()
 
 """ Отправка сообщения админу при запуске бота """
 async def start_bot(bot: Bot):
   await set_command(bot)
-  for admin in admin_list:
-    try:
-      await bot.send_message(chat_id=admin, text="Бот запущен!")
-    except Exception as e:
-      print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
+  try:
+    await bot.send_message(chat_id=ADMIN_ID, text="Бот запущен!")
+  except Exception as e:
+    print(f"Не удалось отпарвить сообщение администратору - {ADMIN_ID}\n{e}")
 
 """ Отправка сообщения админу при остановке бота """
 async def stop_bot(bot: Bot):
-  for admin in admin_list:
-    try:
-      await bot.send_message(chat_id=admin, text="Бот остановлен!")
-    except Exception as e:
-      print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
+  try:
+    await bot.send_message(chat_id=ADMIN_ID, text="Бот остановлен!")
+  except Exception as e:
+    print(f"Не удалось отпарвить сообщение администратору - {ADMIN_ID}\n{e}")
 
 async def main() -> None:
   bot = Bot(token=BOT_TOKEN)
@@ -46,7 +42,7 @@ async def main() -> None:
 
   dp.include_routers(basic.router, callback.router)
 
-  # sql_start()
+  sql_start()
   try:
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=['message', 'callback_query'])
