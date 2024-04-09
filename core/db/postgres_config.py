@@ -1,9 +1,10 @@
 import psycopg2
+from core.config.config import ip, PGUSER, PGPASSWORD, DATABASE 
 
 conn = psycopg2.connect(
-  host='127.0.0.1',
+  host=ip,
   port=5432,
-  user='userAdministrator',
-  password='adminMGOK11!',
-  database='voice_holiday'
+  user=PGUSER,
+  password=PGPASSWORD,
+  database=DATABASE
 )

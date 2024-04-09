@@ -8,11 +8,10 @@ from dotenv import load_dotenv
 from core.utils.commands import set_command
 from core.handlers import basic, callback
 from core.db.database import sql_start 
+from core.config.config import BOT_TOKEN, admins
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = os.getenv("ADMIN_ID")
 
 
 router = Router()
@@ -21,16 +20,18 @@ router = Router()
 async def start_bot(bot: Bot):
   await set_command(bot)
   try:
-    await bot.send_message(chat_id=ADMIN_ID, text="Бот запущен!")
+    for admin in admins:
+      await bot.send_message(chat_id=admin, text="Бот запущен!")
   except Exception as e:
-    print(f"Не удалось отпарвить сообщение администратору - {ADMIN_ID}\n{e}")
+    print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
 
 """ Отправка сообщения админу при остановке бота """
 async def stop_bot(bot: Bot):
   try:
-    await bot.send_message(chat_id=ADMIN_ID, text="Бот остановлен!")
+    for admin in admins:
+      await bot.send_message(chat_id=admin, text="Бот остановлен!")
   except Exception as e:
-    print(f"Не удалось отпарвить сообщение администратору - {ADMIN_ID}\n{e}")
+    print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
 
 async def main() -> None:
   bot = Bot(token=BOT_TOKEN)

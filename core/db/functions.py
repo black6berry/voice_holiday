@@ -1,7 +1,9 @@
 import psycopg2
 from core.db.postgres_config import conn
 
-
+#----------------------------------------------------
+#           CRUD Пользователей                      |
+#----------------------------------------------------
 """ Ф-я получения пользователей """
 def get_users() -> list:
   cur = conn.cursor()
@@ -12,10 +14,13 @@ def get_users() -> list:
     """
     cur.execute(query)
     users = cur.fetchone()
-    print(users)
-  
+    user_list = []
     for user in users:
-      print(user)
+      group_dict = {
+        'ID': user[0],
+        'Name': user[1],
+      }
+      user_list.append(group_dict)
     
     return users
   except psycopg2.Error as error:
@@ -57,7 +62,9 @@ def add_user(user_id, username, chat_id, is_admin) -> int:
       print("Соединение с SQLite закрыто")
 
 
-
+#----------------------------------------------------
+#                   CRUD Групп                      |
+#----------------------------------------------------
 """ Вывод групп """
 def get_groups() -> list:
   cur = conn.cursor()
@@ -76,7 +83,6 @@ def get_groups() -> list:
         'Name': group[1],
       }
       group_list.append(group_dict)
-      # group_list.append(group)
 
     return group_list
   except psycopg2.Error as error:
@@ -85,3 +91,7 @@ def get_groups() -> list:
     if conn:
       conn.close()
       print("Соединение с SQLite закрыто")
+
+
+def get_birthday_text() -> str:
+  pass

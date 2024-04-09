@@ -18,7 +18,7 @@ async def upload_main_menu_photo(message: Message) -> None:
 """ Общая команда старта """
 @router.message(CommandStart())
 async def get_start(message: Message, bot: Bot) -> None:
-  msg_txt = "Главное меню"
+  msg_txt = " Voice Holiday - Сервис для поздравлений пользователей по системе радиовещания :D "
   await bot.send_photo(chat_id=message.chat.id, photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA', caption=msg_txt, reply_markup=main_menu_admin_ikb())
 
 """ Команда помощи """
