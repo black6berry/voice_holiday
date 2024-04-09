@@ -2,21 +2,22 @@ import psycopg2
 from core.db.postgres_config import conn
 
 
-""" Ф-я получения пользователя """
-def get_user(username) -> bool:
+""" Ф-я получения пользователей """
+def get_users() -> list:
   cur = conn.cursor()
   try:
-    query = """ SELECT username
-              FROM user 
-              WHERE username=?
-              """
-    cur.execute(query,( username, ))
-    result = cur.fetchone()
-    if result:
-      return True
-    else:
-      return False
+    query = """
+      SELECT id, firstname, lastname, datebirthday, student_group_id
+      FROM public."user";
+    """
+    cur.execute(query)
+    users = cur.fetchone()
+    print(users)
+  
+    for user in users:
+      print(user)
     
+    return users
   except psycopg2.Error as error:
     print("Ошибка при работе с SQLite", error)
   finally:
@@ -57,135 +58,27 @@ def add_user(user_id, username, chat_id, is_admin) -> int:
 
 
 
-""" Создаем новую заявку """
-def add_application_form(
-    datetime_create,
-    user_FIO="", 
-    phone_number="", 
-    INN="", 
-    monthly_revenue_company="", 
-    monthly_loan_payments="", 
-    desired_loan_amount="", 
-    loan_term="") -> int:
-
+""" Вывод групп """
+def get_groups() -> list:
   cur = conn.cursor()
   try:
-    query = """ INSERT INTO application_form
-                                          (user_FIO, 
-                                          phone_number, 
-                                          INN, 
-                                          monthly_revenue_company, 
-                                          monthly_loan_payments, 
-                                          desired_loan_amount, 
-                                          loan_term, 
-                                          datetime_create)
-
-                                          VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-                                          """
-    cur.execute(query, (
-      user_FIO, 
-      phone_number, 
-      INN, 
-      monthly_revenue_company, 
-      monthly_loan_payments, 
-      desired_loan_amount, 
-      loan_term,
-      datetime_create))
-    conn.commit()
-    application_id = cur.lastrowid
-    return application_id
-  except psycopg2.Error as error:
-    print("Ошибка при работе с SQLite", error)
-  finally:
-    if conn:
-      conn.close()
-      print("Соединение с SQLite закрыто")
-
-
-""" Обновление данных заявки """
-def update_application_form(
-    datetime_create,
-    application_form_id,
-    user_FIO="", 
-    phone_number="", 
-    INN="", 
-    monthly_revenue_company="", 
-    monthly_loan_payments="", 
-    desired_loan_amount="", 
-    loan_term="") -> int:
-
-  cur = conn.cursor()
-  
-  try: 
-    query = """ UPDATE application_form
-                SET
-                user_FIO=?, 
-                phone_number=?, 
-                INN=?, 
-                monthly_revenue_company=?, 
-                monthly_loan_payments=?, 
-                desired_loan_amount=?, 
-                loan_term=?, 
-                datetime_create=?
-
-                WHERE id=?
-              """
-  
-    cur.execute(query, (
-      user_FIO, 
-      phone_number, 
-      INN, 
-      monthly_revenue_company, 
-      monthly_loan_payments, 
-      desired_loan_amount, 
-      loan_term,
-      datetime_create,
-      application_form_id))
-    conn.commit()
-    application_id = cur.lastrowid
-    print(application_id)
-    return application_id
-  except psycopg2.Error as error:
-    print("Ошибка при работе с SQLite", error)
-  finally:
-    if conn:
-      conn.close()
-      print("Соединение с SQLite закрыто")
-
-
-""" Ф-я обновления id заявки пользователя """
-def update_user_application_form_id(new_application_form_id, username):
-  cur = conn.cursor()
-  try: 
     query = """ 
-      UPDATE user 
-      SET application_form_id=?
-      WHERE username=? 
+      SELECT * FROM public.student_group
+      ORDER BY id ASC 
+      LIMIT 50
     """
-    cur.execute(query, (new_application_form_id, username))
-    conn.commit()
-  except psycopg2.Error as error:
-    print("Ошибка при работе с SQLite", error)
-  finally:
-    if conn:
-      conn.close()
-      print("Соединение с SQLite закрыто")
+    cur.execute(query)
+    groups = cur.fetchall()
+    group_list = []
+    for group in groups:
+      group_dict = {
+        'ID': group[0],
+        'Name': group[1],
+      }
+      group_list.append(group_dict)
+      # group_list.append(group)
 
-
-
-""" Получить id заявки """
-def get_application_form_id(username) -> int:
-  cur = conn.cursor()
-  try:
-    query = """
-      SELECT application_form_id
-      FROM "user"
-      WHERE username=?
-    """
-    cur.execute(query, (username,))
-    result = cur.fetchone()
-    print(result[0])
-    return result[0]
+    return group_list
   except psycopg2.Error as error:
     print("Ошибка при работе с SQLite", error)
   finally:

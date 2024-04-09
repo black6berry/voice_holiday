@@ -4,8 +4,7 @@ from core.db.postgres_config import conn
 def sql_start():
   conn.autocommit = True
   cur = conn.cursor()
-  
-  # with conn as cur:
+
   try:
     if conn:
       print('Подключение в базе данных...')
