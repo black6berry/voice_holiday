@@ -31,7 +31,7 @@ async def stop_bot(bot: Bot):
     for admin in admins:
       await bot.send_message(chat_id=admin, text="Бот остановлен!")
   except Exception as e:
-    print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
+    print(f"Не удалось отпарвить сообщение администратору - {admin  }\n{e}")
 
 async def main() -> None:
   bot = Bot(token=BOT_TOKEN)
