@@ -14,19 +14,20 @@ router = Router()
 
 @router.message(F.photo)
 async def upload_main_menu_photo(message: Message) -> None:
-  photo_data = message.photo[-1]
-  await message.answer(f'{photo_data}')
+    """ Ф-я Загрузка фоток """
+    photo_data = message.photo[-1]
+    await message.answer(f'{photo_data}')
 
-""" Общая команда старта """
 @router.message(StateFilter(None), F.text.lower() == "меню")
 @router.message(CommandStart())
 async def get_start(message: Message, bot: Bot, state: FSMContext) -> None:
-  await state.set_state(MenuState.main_menu)
-  msg_txt = " Voice Holiday - Сервис для поздравлений пользователей по системе радиовещания :D "
-  await bot.send_photo(chat_id=message.chat.id, photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA', caption=msg_txt, reply_markup=main_menu_admin_ikb())
+    """ Общая команда старта """  
+    await state.set_state(MenuState.main_menu)
+    msg_txt = " Voice Holiday - Сервис для поздравлений пользователей по системе радиовещания :D "
+    await bot.send_photo(chat_id=message.chat.id, photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA', caption=msg_txt, reply_markup=main_menu_admin_ikb())
 
-""" Команда помощи """
 @router.message(Command("help"))
 async def get_help_me(message: Message, bot: Bot) -> None:
-  msg_txt = "Я бот который поздравляет людей с их днем рождения.\nВведи команду /start чтобы начать"
-  await bot.send_message(chat_id=message.chat.id, text=msg_txt)
+    """ Команда помощи """
+    msg_txt = "Я бот который поздравляет людей с их днем рождения.\nВведи команду /start чтобы начать"
+    await bot.send_message(chat_id=message.chat.id, text=msg_txt)

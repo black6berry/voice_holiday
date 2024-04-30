@@ -16,41 +16,41 @@ load_dotenv()
 
 router = Router()
 
-""" Отправка сообщения админу при запуске бота """
 async def start_bot(bot: Bot):
-  await set_command(bot)
-  try:
-    for admin in admins:
-      await bot.send_message(chat_id=admin, text="Бот запущен!")
-  except Exception as e:
-    print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
+    """Отправка сообщения админу при запуске бота"""
+    await set_command(bot)
+    try:
+        for admin in admins:
+            await bot.send_message(chat_id=admin, text="Бот запущен!")
+    except Exception as e:
+        print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
 
-""" Отправка сообщения админу при остановке бота """
 async def stop_bot(bot: Bot):
-  try:
-    for admin in admins:
-      await bot.send_message(chat_id=admin, text="Бот остановлен!")
-  except Exception as e:
-    print(f"Не удалось отпарвить сообщение администратору - {admin  }\n{e}")
+    """Отправка сообщения админу при остановке бота"""
+    try:
+        for admin in admins:
+            await bot.send_message(chat_id=admin, text="Бот остановлен!")
+    except Exception as e:
+        print(f"Не удалось отпарвить сообщение администратору - {admin  }\n{e}")
 
 async def main() -> None:
-  bot = Bot(token=BOT_TOKEN)
-  storage = MemoryStorage()
-  dp = Dispatcher(token=BOT_TOKEN, storage=storage)
+    bot = Bot(token=BOT_TOKEN)
+    storage = MemoryStorage()
+    dp = Dispatcher(token=BOT_TOKEN, storage=storage)
 
-  dp.startup.register(start_bot)
-  dp.shutdown.register(stop_bot)
+    dp.startup.register(start_bot)
+    dp.shutdown.register(stop_bot)
 
-  dp.include_routers(basic.router, callback.router)
+    dp.include_routers(basic.router, callback.router)
 
-  sql_start()
-  try:
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, allowed_updates=['message', 'callback_query'])
-  finally:
-    bot.session.close()   
+    sql_start()
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot, allowed_updates=['message', 'callback_query'])
+    finally:
+        bot.session.close()   
 
 
 if __name__ == '__main__':
-  logging.basicConfig(level=logging.INFO)
-  asyncio.run(main())
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
