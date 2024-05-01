@@ -84,7 +84,7 @@ class ActionORM:
 
 
 #------------------    CRUD Текстов поздравлений   -------------------
-    def get_congratulations() -> str:
+    def get_congratulations() -> list:
         """ Получение текстов поздравлений """
         try:
             with conn.cursor() as cur:
@@ -92,16 +92,16 @@ class ActionORM:
                     SELECT id, "text"
                     FROM public.congratulation;
                 """
-            cur.execute(query)
-            birthday_text = cur.fetchall()
-            congratulations_list = []
-            print(congratulations_list)
-            for birthday_text in congratulations_list:
-                group_dict = {
-                    'ID': birthday_text[0],
-                    'Name': birthday_text[1],
-                }
-                congratulations_list.append(group_dict)
+                cur.execute(query)
+                birthday_text = cur.fetchall()
+                congratulations_list = []
+                print(congratulations_list)
+                for birthday_text in congratulations_list:
+                    group_dict = {
+                        'ID': birthday_text[0],
+                        'Name': birthday_text[1],
+                    }
+                    congratulations_list.append(group_dict)
 
             return congratulations_list
         except psycopg2.Error as error:

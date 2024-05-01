@@ -1,13 +1,15 @@
 import math
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 # Простой пагинатор
 class Paginator:
     """ Класс для работы с пагинацией """
-    def __init__(self, array: list | tuple, page: int=1, per_page: int=1):
+    def __init__(self, array: list | tuple, page: int=1, per_page: int=1, pattern: int=10):
         self.array = array
         self.per_page = per_page
         self.page = page
+        self.pattern = pattern 
         self.len = len(self.array)
         # math.ceil - округление в большую сторону до целого числа
         self.pages = math.ceil(self.len / self.per_page)

@@ -1,16 +1,20 @@
+from mailbox import Message
 from aiogram.types import CallbackQuery
 from aiogram import Bot, Router, F
 from aiogram.fsm.context import FSMContext
-from core.keyboard.keyboard import  main_menu_admin_ikb, users_action_ikb
+from core.handlers.basic import get_start
+from core.keyboard.keyboard import main_menu_admin_ikb, users_action_ikb
 from core.keyboard.keyboard import MyCallback, groups_ikb, back_ikb
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from core.state.menu import MenuState
 from core.db.functions import ActionORM
 from aiogram.filters import StateFilter
+from core.utils.paginator import Paginator
 
 
 
 router = Router()
+
 
 @router.callback_query(StateFilter(MenuState.main_menu), MyCallback.filter(F.btn_txt.lower() == "показать группы"))
 async def show_groups(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
@@ -19,7 +23,9 @@ async def show_groups(callback: CallbackQuery, bot: Bot, state: FSMContext) -> N
 
     groups = ActionORM.get_groups() # получаем список групп
     print(groups)
+    
     if groups is not None:
+        # paginations =  Paginator(groups)
 
         builder = InlineKeyboardBuilder()
         groups_count = 0
@@ -118,3 +124,12 @@ async def show_main_menu(callback: CallbackQuery, bot: Bot, state: FSMContext) -
     await callback.answer()
     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
 
+
+@router.callback_query(MyCallback.filter(F.btn_txt.lower() == "назад"), StateFilter(MenuState.menu_step2))
+async def go_back(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Обработка нажатия кнопки назад из состояния 'Показать поздравления'"""
+    await state.set_state(MenuState.main_menu)
+    msg_txt = " Voice Holiday - Сервис для поздравлений пользователей по системе радиовещания :D "
+    await bot.send_photo(chat_id=callback.message.chat.id, photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA', caption=msg_txt, reply_markup=main_menu_admin_ikb())
+    await callback.answer()
+    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
