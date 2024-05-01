@@ -133,3 +133,9 @@ async def go_back(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     await bot.send_photo(chat_id=callback.message.chat.id, photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA', caption=msg_txt, reply_markup=main_menu_admin_ikb())
     await callback.answer()
     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+
+
+@router.callback_query(MyCallback.filter(F.btn_txt.lower() == "назад"), StateFilter(MenuState.menu_step3))
+async def go_back2(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Обработка нажатия кнопки назад из состояния 'Показать группы'"""
+    await show_groups(callback, bot, state)
