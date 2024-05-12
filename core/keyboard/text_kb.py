@@ -6,7 +6,9 @@ show_groups = "👥 Показать группы"
 add_group = "✅ Добавить группу"
 del_group = "❌ Удалить группу"
 
-show_birthday_txt = "📜 Тексты поздравлений"
+show_template_congratulaton = "📜 Показать шаблон"
+add_template_congratulaton = "✅ Добавить шаблон"
+del_template_congratulaton = "❌ Удалить шаблон"
 
 main_menu = "🏠 Главное меню"
 menu_back="⬅️ Назад"

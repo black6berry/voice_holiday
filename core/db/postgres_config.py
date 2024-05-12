@@ -1,5 +1,5 @@
 import psycopg2
-from core.config.config import ip, PGUSER, PGPASSWORD, DATABASE 
+from core.config.config import ip, PGUSER, PGPASSWORD, DATABASE
 
 conn = psycopg2.connect(
   host=ip,

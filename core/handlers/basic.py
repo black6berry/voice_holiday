@@ -18,7 +18,7 @@ async def upload_main_menu_photo(message: Message) -> None:
     photo_data = message.photo[-1]
     await message.answer(f'{photo_data}')
 
-@router.message(StateFilter(None), F.text.lower() == "меню")
+@router.message(StateFilter('*'), F.btn_txt.lower() == "главное меню")
 @router.message(CommandStart())
 async def get_start(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Общая команда старта """  

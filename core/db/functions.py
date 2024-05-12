@@ -5,25 +5,28 @@ from core.db.postgres_config import conn
 class ActionORM:
     """ Класс для работы ORM """
 #------------------    CRUD Пользователей   -------------------
-    def get_users() -> list:
+    def get_users() -> dict:
         """ Ф-я получения пользователей """
         cur = conn.cursor()
         try:
             query = """
-                SELECT id, firstname, lastname, datebirthday, student_group_id
+                SELECT id, firstname, lastname, datebirthday
                 FROM public."user";
             """
             cur.execute(query)
-            users = cur.fetchone()
-            user_list = []
+            users = cur.fetchall()
+            users_list = []
             for user in users:
                 group_dict = {
                     'ID': user[0],
-                    'Name': user[1],
+                    'firstname': user[1],
+                    'lastname': user[2],
+                    'datebirthday': user[3],
                 }
-                user_list.append(group_dict)
+                users_list.append(group_dict)
+            print(users_list)
     
-            return users
+            return users_list
         except psycopg2.Error as error:
             print("Ошибка при работе с SQLite", error)
 
@@ -65,18 +68,17 @@ class ActionORM:
                 query = """ 
                     SELECT * FROM public.student_group
                     ORDER BY id ASC 
-                    LIMIT 24
                 """
                 cur.execute(query)
                 groups = cur.fetchall()
                 group_list = []
-                print(group_list)
                 for group in groups:
                     group_dict = {
                         'ID': group[0],
                         'Name': group[1],
                     }
                     group_list.append(group_dict)
+                print(group_list)
 
             return group_list
         except psycopg2.Error as error:
@@ -93,15 +95,15 @@ class ActionORM:
                     FROM public.congratulation;
                 """
                 cur.execute(query)
-                birthday_text = cur.fetchall()
+                congratulation_template_text = cur.fetchall()
                 congratulations_list = []
-                print(congratulations_list)
-                for birthday_text in congratulations_list:
+                for birthday_text in congratulation_template_text:
                     group_dict = {
                         'ID': birthday_text[0],
                         'Name': birthday_text[1],
                     }
                     congratulations_list.append(group_dict)
+                print(congratulations_list)
 
             return congratulations_list
         except psycopg2.Error as error:

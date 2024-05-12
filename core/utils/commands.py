@@ -8,7 +8,7 @@ async def set_command(bot: Bot):
             description='Начало работы'
         ),
         BotCommand(
-            command='help', 
+            command='help',
             description='Помощь'
         )
     ]
