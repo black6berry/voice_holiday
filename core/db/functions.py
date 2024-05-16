@@ -31,7 +31,7 @@ class ActionORM:
             print("Ошибка при работе с SQLite", error)
 
 
-    def add_user(user_id, username, chat_id, is_admin) -> int:
+    def add_user(self, user_id, username, chat_id, is_admin) -> int:
         """ Ф-я создания пользователя """
         try:
             with conn.cursor() as cur:
@@ -65,7 +65,7 @@ class ActionORM:
         try:
             # cur = conn.cursor()
             with conn.cursor() as cur:
-                query = """ 
+                query = """
                     SELECT * FROM public.student_group
                     ORDER BY id ASC 
                 """
