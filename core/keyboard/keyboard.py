@@ -4,42 +4,42 @@ from core.keyboard import text_kb
 
 
 
-def main_menu_admin_ikb() -> InlineKeyboardMarkup:
+def main_menu_ikb() -> InlineKeyboardMarkup:
     """ Главное меню админа """
     ikb= InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text=text_kb.show_users, callback_data=MyCallback(btn_txt="Показать пользователей").pack())
-        ],
-        [
-            InlineKeyboardButton(text=text_kb.show_template_congratulaton, callback_data=MyCallback(btn_txt="Тексты поздравлений").pack())
-        ],
-    ])
-    return ikb
-
-def users_action_ikb() -> InlineKeyboardMarkup:
-    """ Клавиатура для действий с пользователями """
-    ikb = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text=text_kb.add_user, callback_data=MyCallback(btn_txt="Добавить пользователя").pack()),
-            InlineKeyboardButton(text=text_kb.del_user, callback_data=MyCallback(btn_txt="Удалить пользователя").pack()),
-        ],
-        [
-            InlineKeyboardButton(text=text_kb.main_menu, callback_data=MyCallback(btn_txt="Главное меню").pack())
+            InlineKeyboardButton(text=text_kb.choose_type_holiday, callback_data=MyCallback(btn_txt="выбрать праздник", level=0).pack())
         ],
     ])
     return ikb
 
 
-def congratulations_action_ikb() -> InlineKeyboardMarkup:
-    """ Клавиатура для действий с пользователями """
-    ikb = InlineKeyboardMarkup(inline_keyboard=[
+def holidays_ikb() -> InlineKeyboardMarkup:
+    """ Выбор праздика """
+    ikb= InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text=text_kb.add_template_congratulaton, callback_data=MyCallback(btn_txt="Добавить шаблон").pack()),
-            InlineKeyboardButton(text=text_kb.del_template_congratulaton, callback_data=MyCallback(btn_txt="Удалить шаблон").pack()),
+            InlineKeyboardButton(text=text_kb.holiday_birthday, callback_data=MyCallback(btn_txt="день рождения", level=1).pack()),
+            InlineKeyboardButton(text=text_kb.holiday_defenderday, callback_data=MyCallback(btn_txt="день защитника отечества", level=1).pack())
         ],
         [
-            InlineKeyboardButton(text=text_kb.main_menu, callback_data=MyCallback(btn_txt="Главное меню").pack())
+            InlineKeyboardButton(text=text_kb.holiday_womensday, callback_data=MyCallback(btn_txt="женский день", level=1).pack()),
+            InlineKeyboardButton(text=text_kb.holiday_allworkday, callback_data=MyCallback(btn_txt="день весны и труда", level=1).pack())
         ],
+        [
+            InlineKeyboardButton(text=text_kb.holiday_winnerday, callback_data=MyCallback(btn_txt="день победы", level=1).pack()),
+            InlineKeyboardButton(text=text_kb.holiday_russiaday, callback_data=MyCallback(btn_txt="день России", level=1).pack())
+        ],
+        [
+            InlineKeyboardButton(text=text_kb.holiday_nameday, callback_data=MyCallback(btn_txt="именины", level=1).pack()),
+            InlineKeyboardButton(text=text_kb.holiday_unityday, callback_data=MyCallback(btn_txt="день народного единства", level=1).pack())
+        ],
+        [
+            InlineKeyboardButton(text=text_kb.holiday_knowledgeday, callback_data=MyCallback(btn_txt="день знаний", level=1).pack()),
+            InlineKeyboardButton(text=text_kb.holiday_14thday, callback_data=MyCallback(btn_txt="день влюбленных", level=1).pack())
+        ],
+        [
+            InlineKeyboardButton(text=text_kb.create_holiday_yourself, callback_data=MyCallback(btn_txt="свой шаблон", level=1).pack())
+        ]
     ])
     return ikb
 
@@ -47,6 +47,6 @@ def congratulations_action_ikb() -> InlineKeyboardMarkup:
 """Одиночная кнопка назад"""
 back_ikb = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text=text_kb.menu_back, callback_data=MyCallback(btn_txt="Назад").pack()),
+        InlineKeyboardButton(text=text_kb.menu_back, callback_data=MyCallback(btn_txt="Назад", level=1).pack()),
     ],
 ])

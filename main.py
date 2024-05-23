@@ -7,7 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 from core.utils.commands import set_command
 from core.handlers import basic, callback
-from core.db.database import sql_start 
+from core.db.db_sqllite import sql_start 
 from core.config.config import BOT_TOKEN, admins
 
 load_dotenv()
@@ -48,7 +48,7 @@ async def main() -> None:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=['message', 'callback_query'])
     finally:
-        bot.session.close()   
+        bot.session.close()
 
 
 if __name__ == '__main__':

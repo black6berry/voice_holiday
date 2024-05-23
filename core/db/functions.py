@@ -1,40 +1,37 @@
-import psycopg2
-from core.db.postgres_config import conn
-
+import sqlite3
+con = sqlite3.connect("voice-holiday.db")
 #------------------   Класс для работы с БД  ------------------
 class ActionORM:
     """ Класс для работы ORM """
 #------------------    CRUD Пользователей   -------------------
-    def get_users() -> dict:
-        """ Ф-я получения пользователей """
-        cur = conn.cursor()
+    def get_holidays() -> dict:
+        """ Ф-я получения праздников """
+        cur = con.cursor()
         try:
             query = """
-                SELECT id, firstname, lastname, datebirthday
-                FROM public."user";
+                SELECT id, name
+                FROM holiday;
             """
             cur.execute(query)
-            users = cur.fetchall()
-            users_list = []
-            for user in users:
-                group_dict = {
-                    'ID': user[0],
-                    'firstname': user[1],
-                    'lastname': user[2],
-                    'datebirthday': user[3],
+            holidays = cur.fetchall()
+            holidays_list = []
+            for holiday in holidays:
+                holidays_dict = {
+                    'ID': holiday[0],
+                    'name': holiday[1],
                 }
-                users_list.append(group_dict)
-            print(users_list)
+                holidays_list.append(holidays_dict)
+            print(holidays_list)
     
-            return users_list
-        except psycopg2.Error as error:
+            return holidays_list
+        except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
 
 
     def add_user(self, user_id, username, chat_id, is_admin) -> int:
         """ Ф-я создания пользователя """
         try:
-            with conn.cursor() as cur:
+            with con.cursor() as cur:
                 query = """ 
                     INSERT INTO user 
                             (user_id, 
@@ -52,10 +49,10 @@ class ActionORM:
                     is_admin, 
                         ))
                 print("ПОЛЬЗОВАТЕЛЬ СОЗДАН")
-                conn.commit()
+                con.commit()
                 user_id = cur.lastrowid.__init__
             return user_id
-        except psycopg2.Error as error:
+        except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
 
 
@@ -64,7 +61,7 @@ class ActionORM:
         """ Вывод групп """
         try:
             # cur = conn.cursor()
-            with conn.cursor() as cur:
+            with con.cursor() as cur:
                 query = """
                     SELECT * FROM public.student_group
                     ORDER BY id ASC 
@@ -81,7 +78,7 @@ class ActionORM:
                 print(group_list)
 
             return group_list
-        except psycopg2.Error as error:
+        except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
 
 
@@ -89,7 +86,7 @@ class ActionORM:
     def get_congratulations() -> list:
         """ Получение текстов поздравлений """
         try:
-            with conn.cursor() as cur:
+            with con.cursor() as cur:
                 query = """
                     SELECT id, "text"
                     FROM public.congratulation;
@@ -106,5 +103,5 @@ class ActionORM:
                 print(congratulations_list)
 
             return congratulations_list
-        except psycopg2.Error as error:
+        except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
