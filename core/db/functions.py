@@ -17,7 +17,7 @@ class ActionORM:
             holidays_list = []
             for holiday in holidays:
                 holidays_dict = {
-                    'ID': holiday[0],
+                    'id': holiday[0],
                     'name': holiday[1],
                 }
                 holidays_list.append(holidays_dict)

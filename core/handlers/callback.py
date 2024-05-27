@@ -24,15 +24,16 @@ async def show_type_holiays(callback: CallbackQuery, bot: Bot, state: FSMContext
     msg_txt = "Выбери праздник или напиши свой текст поздравления"
 
     holidays = ActionORM.get_holidays()
-    print(holidays)
+    # print(holidays)
     builder = InlineKeyboardBuilder()
     for holiday in holidays:
-        builder.button(text=holiday['name'], callback_data=holiday['name'])
+        builder.button(text=holiday['name'], callback_data=MyCallback(btn_txt=str(holiday['id']), level=1).pack())
     builder.adjust(2)
 
     another_builder = InlineKeyboardBuilder()
-    another_builder.button(text=text_kb.create_holiday_yourself, callback_data=MyCallback(btn_txt="cвой шаблон", level=1))
+    another_builder.button(text=text_kb.create_holiday_yourself, callback_data=MyCallback(btn_txt="cвой шаблон", level=1).pack())
     builder.attach(another_builder)
+    print(builder)
 
     await bot.send_photo(
         chat_id=callback.message.chat.id,
