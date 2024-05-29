@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.mp3
+hubert_base.pt
+rmvpe.pt
+.env 
