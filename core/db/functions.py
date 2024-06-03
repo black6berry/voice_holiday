@@ -3,7 +3,7 @@ con = sqlite3.connect("voice-holiday.db")
 #------------------   Класс для работы с БД  ------------------
 class ActionORM:
     """ Класс для работы ORM """
-#------------------    CRUD Пользователей   -------------------
+#------------------    CRUD Праздников   -------------------
     def get_holidays() -> dict:
         """ Ф-я получения праздников """
         cur = con.cursor()
@@ -21,87 +21,52 @@ class ActionORM:
                     'name': holiday[1],
                 }
                 holidays_list.append(holidays_dict)
-            print(holidays_list)
+            # print(holidays_list)
     
             return holidays_list
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
 
-
-    def add_user(self, user_id, username, chat_id, is_admin) -> int:
-        """ Ф-я создания пользователя """
+#------------------    CRUD шаблонов   -------------------
+    def get_templates(id) -> dict:
+        """ Ф-я получения праздников """
+        cur = con.cursor()
         try:
-            with con.cursor() as cur:
-                query = """ 
-                    INSERT INTO user 
-                            (user_id, 
-                            username, 
-                            chat_id, 
-                            is_admin) 
-
-                        VALUES (?, ?, ?, ?)
-                    """
-
-                cur.execute(query,(
-                    user_id, 
-                    username, 
-                    chat_id, 
-                    is_admin, 
-                        ))
-                print("ПОЛЬЗОВАТЕЛЬ СОЗДАН")
-                con.commit()
-                user_id = cur.lastrowid.__init__
-            return user_id
+            query = """
+                SELECT ph.id, p."text" 
+                FROM pattern_holiday ph
+                JOIN pattern p 
+                ON ph.pattern_id = p.id 
+                WHERE ph.holiday_id == ?
+            """
+            cur.execute(query, (id,))
+            templates = cur.fetchall()
+            templates_list = []
+            for template in templates:
+                templates_dict = {
+                    'id': template[0],
+                    'text': template[1],
+                }
+                templates_list.append(templates_dict)
+            # print(templates_dict)
+    
+            return templates_list
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
 
 
-#------------------    CRUD Групп  -------------------
-    def get_groups() -> list:
-        """ Вывод групп """
+    def get_template(id) -> str:
+        """ Ф-я  Получение шаблона """
+        cur = con.cursor()
         try:
-            # cur = conn.cursor()
-            with con.cursor() as cur:
-                query = """
-                    SELECT * FROM public.student_group
-                    ORDER BY id ASC 
-                """
-                cur.execute(query)
-                groups = cur.fetchall()
-                group_list = []
-                for group in groups:
-                    group_dict = {
-                        'ID': group[0],
-                        'Name': group[1],
-                    }
-                    group_list.append(group_dict)
-                print(group_list)
+            query = """
+                SELECT "text" FROM pattern
+                WHERE id == ?
+            """
+            cur.execute(query, (id,))
+            template_text = cur.fetchall()
+            # print(template_text)
 
-            return group_list
-        except sqlite3.Error as error:
-            print("Ошибка при работе с SQLite", error)
-
-
-#------------------    CRUD Текстов поздравлений   -------------------
-    def get_congratulations() -> list:
-        """ Получение текстов поздравлений """
-        try:
-            with con.cursor() as cur:
-                query = """
-                    SELECT id, "text"
-                    FROM public.congratulation;
-                """
-                cur.execute(query)
-                congratulation_template_text = cur.fetchall()
-                congratulations_list = []
-                for birthday_text in congratulation_template_text:
-                    group_dict = {
-                        'ID': birthday_text[0],
-                        'Name': birthday_text[1],
-                    }
-                    congratulations_list.append(group_dict)
-                print(congratulations_list)
-
-            return congratulations_list
+            return template_text
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)

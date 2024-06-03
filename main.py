@@ -7,10 +7,12 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 from core.utils.commands import set_command
 from core.handlers import basic, callback
-from core.db.db_sqllite import sql_start 
+# from core.db.db_sqllite import sql_start 
 from core.config.config import BOT_TOKEN, admins
 
 load_dotenv()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 
@@ -43,7 +45,7 @@ async def main() -> None:
 
     dp.include_routers(basic.router, callback.router)
 
-    sql_start()
+    # sql_start()
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=['message', 'callback_query'])
