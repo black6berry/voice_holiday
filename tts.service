@@ -1,0 +1,17 @@
+[Unit]
+Description=tts
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/voice_holiday/
+ExecStart=/opt/voice_holiday/start.sh
+Restart=always
+
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
