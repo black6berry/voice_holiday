@@ -52,21 +52,3 @@ async def send_request_gradio(
         print(result)
     except Exception as e:
         print(f"Не удалось отправить запрос на сервер\n{e}")
-
-# result = asyncio.run(send_request_gradio(
-#     tts_text='Приветствую Иван Иванович ! С днем рождения! Пусть каждый твой день будет как произведение искусства – красочным, ярким и вдохновляющим. Желаю неиссякаемой энергии и творческих побед! С уважением Никита', 
-#     ))
-# print(result)
-# model_name="Roma"
-# speed=0
-# tts_text="Привет как дела, привет"
-# tts_voice="ru-RU-SvetlanaNeural-Female"
-# f0_up_key=0
-# f0_method="rmvpe"
-# index_rate=1
-# protect=0.33
-# api_name="/tts"
-
-# client =  Client("http://172.16.0.2:7860/")
-# result = client.predict(model_name, speed, tts_text, tts_voice, f0_up_key, f0_method, index_rate, protect, api_name="/tts")
-# print(result)
