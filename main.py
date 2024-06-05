@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from core.utils.commands import set_command
 from core.handlers import basic, callback
 # from core.db.db_sqllite import sql_start 
-from core.config.config import BOT_TOKEN, admins
+from core.config.config import BOT_TOKEN, admins, ADMIN_ID_LIST
 
 load_dotenv()
 
@@ -22,7 +22,7 @@ async def start_bot(bot: Bot):
     """Отправка сообщения админу при запуске бота"""
     await set_command(bot)
     try:
-        for admin in admins:
+        for admin in ADMIN_ID_LIST:
             await bot.send_message(chat_id=admin, text="Бот запущен!")
     except Exception as e:
         print(f"Не удалось отпарвить сообщение администратору - {admin}\n{e}")
@@ -30,7 +30,7 @@ async def start_bot(bot: Bot):
 async def stop_bot(bot: Bot):
     """Отправка сообщения админу при остановке бота"""
     try:
-        for admin in admins:
+        for admin in ADMIN_ID_LIST:
             await bot.send_message(chat_id=admin, text="Бот остановлен!")
     except Exception as e:
         print(f"Не удалось отпарвить сообщение администратору - {admin  }\n{e}")

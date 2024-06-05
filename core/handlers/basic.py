@@ -14,7 +14,7 @@ router = Router()
 
 
 @router.message(CommandStart())
-@router.message(StateFilter('*'), F.btn_txt.lower().in_({'главное меню', "меню", "начать"}))
+@router.message(StateFilter('*'), F.text.lower().in_({"главное меню", "меню", "начать"}))
 async def get_start(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Общая команда старта """  
     await state.set_state(MenuState.main_menu)
@@ -24,5 +24,5 @@ async def get_start(message: Message, bot: Bot, state: FSMContext) -> None:
 @router.message(Command("help"))
 async def get_help_me(message: Message, bot: Bot) -> None:
     """ Команда помощи """
-    msg_txt = "Я бот который поздравляет людей с их днем рождения.\nВведи команду /start чтобы начать"
+    msg_txt = "Я бот который поздравляет людей с их днем рождения.\nВведи команду /start чтобы начать.\nИли можешь отправить мне сообщение: начать, меню, главное меню"
     await bot.send_message(chat_id=message.chat.id, text=msg_txt)
