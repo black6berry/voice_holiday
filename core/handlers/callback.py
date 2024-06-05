@@ -26,15 +26,10 @@ async def show_type_holiays(callback: CallbackQuery, bot: Bot, state: FSMContext
     else:
         pass
 
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
 
     msg_txt = "Выбери праздник или напиши свой текст поздравления"
-
     holidays = ActionORM.get_holidays()
-    # print(holidays)
+    
     builder = InlineKeyboardBuilder()
     for holiday in holidays:
         builder.button(text=holiday['name'], callback_data=HolidayCallback(holiday=holiday['name'], id=holiday['id']).pack())
@@ -43,7 +38,6 @@ async def show_type_holiays(callback: CallbackQuery, bot: Bot, state: FSMContext
     another_builder = InlineKeyboardBuilder()
     another_builder.button(text=text_kb.create_holiday_yourself, callback_data="Свой шаблон")
     builder.attach(another_builder)
-    # print(builder)
 
     await bot.send_photo(
         chat_id=callback.message.chat.id,
@@ -74,11 +68,6 @@ async def show_templates(callback: CallbackQuery, bot: Bot, state: FSMContext) -
     else:
         pass
 
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
-
     templates = ActionORM.get_templates(holiday_id)
 
     builder = InlineKeyboardBuilder()
@@ -89,7 +78,6 @@ async def show_templates(callback: CallbackQuery, bot: Bot, state: FSMContext) -
     another_builder = InlineKeyboardBuilder()
     another_builder.button(text=text_kb.menu_back, callback_data="назад")
     builder.attach(another_builder)
-    # print(builder)
 
     msg_txt = "Выбери шаблон поздравления"
 
@@ -120,11 +108,6 @@ async def show_template_txt(callback: CallbackQuery, bot: Bot, state: FSMContext
     else:
         pass
 
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
-
     if template_text and isinstance(template_text[0][0], str):
         template_txt = template_text[0][0]
         await state.update_data(confirm_template=template_text)
@@ -150,11 +133,6 @@ async def show_voice_dictors(callback: CallbackQuery, bot: Bot, state: FSMContex
         await state.update_data(voice=callback.data)
     else:
         pass
-
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
 
     voices_dictors = ["Anya", "Marat", "Polina", "Putin", "Putin2", "Roma", "Sergey", "Tom"]
 
@@ -193,11 +171,6 @@ async def confirm_voice(callback: CallbackQuery, bot: Bot, state: FSMContext) ->
         dictor = callback.data.replace('dictors:', '')
         print(dictor)
         await state.update_data(dictor=dictor)
-
-        # state_data = await state.get_data()
-        # state_state = await state.get_state()
-        # print(state_data)
-        # print(state_state)
         
         file_name = f"{dictor}.mp3"
         file_path = os.path.join(BASE_DIR, 'voices', file_name)
@@ -233,13 +206,7 @@ async def get_firstname_user_msg(message: Message, bot: Bot, state: FSMContext):
         Обработка message
     """
     firstname = message.text
-    # print(firstname)
-    
     await state.update_data(firstname=firstname)
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
 
     msg_txt = "Введите Фамилию человека которого собираетесь поздравить"
     await bot.send_message(message.chat.id, msg_txt)
@@ -253,10 +220,6 @@ async def get_lastname_user(message: Message, bot: Bot, state: FSMContext) -> No
     lastname = message.text
     print(lastname)
     await state.update_data(lastname=lastname)
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
 
     msg_txt = "Введите отчество человека которого собираетесь поздравить "
     await bot.send_message(message.chat.id, msg_txt)
@@ -269,10 +232,6 @@ async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> 
     patronymic = message.text
     print(patronymic)
     await state.update_data(patronymic=patronymic)
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
 
     msg_txt = "Введите данные поздравляющего"
     await bot.send_message(message.chat.id, msg_txt)
@@ -283,7 +242,6 @@ async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> 
 async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение данных поздравляющего """
     sender = message.text
-    # print(sender)
 
     if sender is not None and sender != "":
         result = await StrRegular.contains_only_non_digits(sender)
@@ -294,22 +252,14 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
             await bot.send_message(message.chat.id, msg_txt)
             
             data = await state.get_data()
-            # print(data)
             model = data.get('dictor')
-            # print(model)
             text = data.get('confirm_template')[0][0]
-            # print(text)
             firstname = data.get('firstname')
-            # print(firstname)
             lastname = data.get('lastname')
-            # print(lastname)
             patronymic = data.get('patronymic')
-            # print(patronymic)
             sender = data.get('sender')
-            # print(sender)
-            #склейка шаблона с параметрами из FSM MenuState
+            # Склейка шаблона с параметрами из FSM MenuState
             text_template = text.format(firstname=firstname, lastname=lastname, patronymic=patronymic, sender=sender)
-            # print(text_template)
             ### Отправка API запроса на сервер для получения mp3 файла ###
             result = await gradio.send_request_gradio(model_name=model, tts_text=text_template)
             print(f"Result: {result}")
@@ -319,11 +269,6 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
     else:
         msg_txt = "Имя отправителя должно быть строкой"
         await bot.send_message(message.chat.id, msg_txt)
-
-    # state_data = await state.get_data()
-    # state_state = await state.get_state()
-    # print(state_data)
-    # print(state_state)
 
     await state.clear()
 
