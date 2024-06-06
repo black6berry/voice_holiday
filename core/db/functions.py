@@ -70,3 +70,34 @@ class ActionORM:
             return template_text
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+
+
+    def add_template(template_text):
+        """ Ф-я добавления шаблона """
+        cur = con.cursor()
+        try:
+            query = """
+                INSERT INTO pattern
+                (id, "text")
+                VALUES(None, ?);
+            """
+            cur.execute(query, (template_text,))
+            result = cur.fetchone()
+            return result
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)
+
+
+    def delete_template(id):
+        """ Ф-я удаления шаблона """
+        cur = con.cursor()
+        try:
+            query = """
+                DELETE FROM pattern
+                WHERE id=?;
+            """
+            cur.execute(query, (id,))
+            result = cur.fetchone()
+            return result
+        except sqlite3.Error as error:
+            print("Ошибка при работе с SQLite", error)

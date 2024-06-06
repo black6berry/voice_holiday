@@ -22,5 +22,5 @@ class StrRegular():
         >>> contains_only_non_digits("Hello123")
         False
         """
-        pattern = r'^[^\d]*$'
+        pattern = r'^[A-Za-zА-Яа-яЁё\s]+$'
         return bool(re.match(pattern, txt))

@@ -205,48 +205,64 @@ async def get_firstname_user_msg(message: Message, bot: Bot, state: FSMContext):
         Получение имени пользователя которого поздравляем 
         Обработка message
     """
-    firstname = message.text
-    await state.update_data(firstname=firstname)
+    try:
+        firstname = await StrRegular.contains_only_non_digits(message.text)
+        print(firstname)
+        if firstname is not False:
+            await state.update_data(firstname=firstname)
+            msg_txt = "Введите Фамилию человека которого собираетесь поздравить"
+            await bot.send_message(message.chat.id, msg_txt)
+            await state.set_state(MenuState.get_lastname)
+        else: 
+            msg_txt = "Введи имя без лишних символов и чисел :D"
+            await bot.send_message(message.chat.id, msg_txt)
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
 
-    msg_txt = "Введите Фамилию человека которого собираетесь поздравить"
-    await bot.send_message(message.chat.id, msg_txt)
-    await state.set_state(MenuState.get_lastname)
 
 
 
 @router.message(StateFilter(MenuState.get_lastname))
 async def get_lastname_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение фамилии пользователя которого поздравляем """
-    lastname = message.text
-    print(lastname)
-    await state.update_data(lastname=lastname)
-
-    msg_txt = "Введите отчество человека которого собираетесь поздравить "
-    await bot.send_message(message.chat.id, msg_txt)
-    await state.set_state(MenuState.get_patronymic)
+    try:
+        lastname = await StrRegular.contains_only_non_digits(message.text)
+        if lastname is not False:
+            await state.update_data(lastname=lastname)
+            msg_txt = "Введите отчество человека которого собираетесь поздравить"
+            await bot.send_message(message.chat.id, msg_txt)
+            await state.set_state(MenuState.get_patronymic)
+        else: 
+            msg_txt = "Введи фамилию без лишних символов и чисел :D"
+            await bot.send_message(message.chat.id, msg_txt)
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
 
 
 @router.message(StateFilter(MenuState.get_patronymic))
 async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение отчества пользователя которого поздравляем """
-    patronymic = message.text
-    print(patronymic)
-    await state.update_data(patronymic=patronymic)
-
-    msg_txt = "Введите данные поздравляющего"
-    await bot.send_message(message.chat.id, msg_txt)
-    await state.set_state(MenuState.get_sender)
+    try:
+        patronymic = await StrRegular.contains_only_non_digits(message.text)
+        if patronymic is not False:
+            await state.update_data(patronymic=patronymic)
+            msg_txt = "Введите данные поздравляющего"
+            await bot.send_message(message.chat.id, msg_txt)
+            await state.set_state(MenuState.get_sender)
+        else: 
+            msg_txt = "Введи фамилию без лишних символов и чисел :D"
+            await bot.send_message(message.chat.id, msg_txt)
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
 
 
 @router.message(StateFilter(MenuState.get_sender))
 async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение данных поздравляющего """
-    sender = message.text
+    try:
+        sender = await StrRegular.contains_only_non_digits(message.text)
 
-    if sender is not None and sender != "":
-        result = await StrRegular.contains_only_non_digits(sender)
-        print(result)
-        if result is not None:
+        if sender is not False:
             await state.update_data(sender=sender)
             msg_txt = "Данные записаны, ваш запрос отправлен, ожидайте проверки модератором"
             await bot.send_message(message.chat.id, msg_txt)
@@ -264,13 +280,12 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
             result = await gradio.send_request_gradio(model_name=model, tts_text=text_template)
             print(f"Result: {result}")
         else:
-            msg_txt = "Имя отправителя должно быть строкой"
+            msg_txt = "Имя отправителя должно быть строкой :D"
             await bot.send_message(message.chat.id, msg_txt)
-    else:
-        msg_txt = "Имя отправителя должно быть строкой"
-        await bot.send_message(message.chat.id, msg_txt)
 
-    await state.clear()
+        await state.clear()
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
 
 
 
