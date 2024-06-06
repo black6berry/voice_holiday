@@ -7,7 +7,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 from core.utils.commands import set_command
 from core.handlers import basic, callback
-# from core.db.db_sqllite import sql_start 
+from core.handlers.admin import callback as admin_callback
+# from core.db.db_sqllite import sql_start
 from core.config.config import BOT_TOKEN, admins, ADMIN_ID_LIST
 
 load_dotenv()
@@ -43,7 +44,7 @@ async def main() -> None:
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
 
-    dp.include_routers(basic.router, callback.router)
+    dp.include_routers(basic.router, callback.router, admin_callback.router)
 
     # sql_start()
     try:

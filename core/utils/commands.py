@@ -10,6 +10,10 @@ async def set_command(bot: Bot):
         BotCommand(
             command='help',
             description='Помощь'
+        ),
+        BotCommand(
+            command='admin',
+            description="тайное меню админа"
         )
     ]
     await bot.set_my_commands(commands, BotCommandScopeDefault())

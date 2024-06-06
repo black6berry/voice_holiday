@@ -1,13 +1,12 @@
 from aiogram.filters import CommandStart, Command 
 from aiogram import F, Router
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message
 from aiogram import Bot, Router
 from aiogram.fsm.context import FSMContext
 from core.state.menu import MenuState
 from aiogram.filters import StateFilter
 
 from core.keyboard.keyboard import main_menu_ikb
-from aiogram.types import FSInputFile
 
 
 router = Router()

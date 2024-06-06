@@ -11,7 +11,7 @@ async def send_request_gradio(
         index_rate=1,
         protect=0.33,
         api_name="/tts"
-        ) -> None:
+        ) -> str:
     """
     Ф-я отправки запроса для генерации аудиодорожки
     Parameters:
@@ -50,5 +50,6 @@ async def send_request_gradio(
             protect=protect,
             api_name=api_name)
         print(result)
+        return result
     except Exception as e:
         print(f"Не удалось отправить запрос на сервер\n{e}")

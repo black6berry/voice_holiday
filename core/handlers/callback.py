@@ -26,7 +26,6 @@ async def show_type_holiays(callback: CallbackQuery, bot: Bot, state: FSMContext
     else:
         pass
 
-
     msg_txt = "Выбери праздник или напиши свой текст поздравления"
     holidays = ActionORM.get_holidays()
     
@@ -206,9 +205,10 @@ async def get_firstname_user_msg(message: Message, bot: Bot, state: FSMContext):
         Обработка message
     """
     try:
-        firstname = await StrRegular.contains_only_non_digits(message.text)
-        print(firstname)
-        if firstname is not False:
+        firstname = message.text
+        result = await StrRegular.contains_only_non_digits(message.text)
+        if result is not False:
+            # print(firstname)
             await state.update_data(firstname=firstname)
             msg_txt = "Введите Фамилию человека которого собираетесь поздравить"
             await bot.send_message(message.chat.id, msg_txt)
@@ -226,8 +226,10 @@ async def get_firstname_user_msg(message: Message, bot: Bot, state: FSMContext):
 async def get_lastname_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение фамилии пользователя которого поздравляем """
     try:
-        lastname = await StrRegular.contains_only_non_digits(message.text)
-        if lastname is not False:
+        lastname = message.text 
+        result = await StrRegular.contains_only_non_digits(message.text)
+        if result is not False:
+            # print(lastname)
             await state.update_data(lastname=lastname)
             msg_txt = "Введите отчество человека которого собираетесь поздравить"
             await bot.send_message(message.chat.id, msg_txt)
@@ -243,8 +245,10 @@ async def get_lastname_user(message: Message, bot: Bot, state: FSMContext) -> No
 async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение отчества пользователя которого поздравляем """
     try:
-        patronymic = await StrRegular.contains_only_non_digits(message.text)
-        if patronymic is not False:
+        patronymic = message.text
+        result = await StrRegular.contains_only_non_digits(message.text)
+        if result is not False:
+            # print(patronymic)
             await state.update_data(patronymic=patronymic)
             msg_txt = "Введите данные поздравляющего"
             await bot.send_message(message.chat.id, msg_txt)
@@ -260,13 +264,15 @@ async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> 
 async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Получение данных поздравляющего """
     try:
-        sender = await StrRegular.contains_only_non_digits(message.text)
+        sender = message.text
+        result = await StrRegular.contains_only_non_digits(message.text)
 
-        if sender is not False:
+        if result is not False:
+            # print(sender)
             await state.update_data(sender=sender)
             msg_txt = "Данные записаны, ваш запрос отправлен, ожидайте проверки модератором"
             await bot.send_message(message.chat.id, msg_txt)
-            
+
             data = await state.get_data()
             model = data.get('dictor')
             text = data.get('confirm_template')[0][0]
@@ -279,6 +285,7 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
             ### Отправка API запроса на сервер для получения mp3 файла ###
             result = await gradio.send_request_gradio(model_name=model, tts_text=text_template)
             print(f"Result: {result}")
+
         else:
             msg_txt = "Имя отправителя должно быть строкой :D"
             await bot.send_message(message.chat.id, msg_txt)
