@@ -27,7 +27,7 @@ async def show_type_holiays(callback: CallbackQuery, bot: Bot, state: FSMContext
         pass
 
     msg_txt = "Выбери праздник или напиши свой текст поздравления"
-    holidays = ActionORM.get_holidays()
+    holidays = await ActionORM.get_holidays()
     
     builder = InlineKeyboardBuilder()
     for holiday in holidays:
@@ -67,7 +67,7 @@ async def show_templates(callback: CallbackQuery, bot: Bot, state: FSMContext) -
     else:
         pass
 
-    templates = ActionORM.get_templates(holiday_id)
+    templates = await ActionORM.get_templates(holiday_id)
 
     builder = InlineKeyboardBuilder()
     for template in templates:
@@ -103,7 +103,7 @@ async def show_template_txt(callback: CallbackQuery, bot: Bot, state: FSMContext
     """Ф-я отображения текста шаблона"""
     if callback.data != "назад":
         unpacked_callback = HolidayTemplateCallback.unpack(callback.data)
-        template_text = ActionORM.get_template(unpacked_callback.id)
+        template_text = await ActionORM.get_template(unpacked_callback.id)
     else:
         pass
 

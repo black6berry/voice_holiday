@@ -4,7 +4,7 @@ con = sqlite3.connect("voice-holiday.db")
 class ActionORM:
     """ Класс для работы ORM """
 #------------------    CRUD Праздников   -------------------
-    def get_holidays() -> dict:
+    async def get_holidays() -> dict:
         """ Ф-я получения праздников """
         cur = con.cursor()
         try:
@@ -26,9 +26,11 @@ class ActionORM:
             return holidays_list
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+        finally:
+            cur.close()
 
 #------------------    CRUD шаблонов   -------------------
-    def get_templates(id) -> dict:
+    async def get_templates(id) -> dict:
         """ Ф-я получения праздников """
         cur = con.cursor()
         try:
@@ -38,6 +40,7 @@ class ActionORM:
                 JOIN pattern p 
                 ON ph.pattern_id = p.id 
                 WHERE ph.holiday_id == ?
+                LIMIT 50;
             """
             cur.execute(query, (id,))
             templates = cur.fetchall()
@@ -53,9 +56,11 @@ class ActionORM:
             return templates_list
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+        finally:
+            cur.close()
 
 
-    def get_template(id) -> str:
+    async def get_template(id) -> str:
         """ Ф-я  Получение шаблона """
         cur = con.cursor()
         try:
@@ -70,25 +75,35 @@ class ActionORM:
             return template_text
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+        finally:
+            cur.close()
 
 
-    def add_template(template_text):
+    async def add_template_for_holiday(holiday_id: int, pattern_text: str) -> str:
         """ Ф-я добавления шаблона """
         cur = con.cursor()
         try:
-            query = """
-                INSERT INTO pattern
-                (id, "text")
-                VALUES(None, ?);
-            """
-            cur.execute(query, (template_text,))
-            result = cur.fetchone()
+            # Вставка нового шаблона в таблицу pattern
+            cur.execute("INSERT INTO pattern (text) VALUES (?)", (pattern_text,))
+            # Получение id вставленного шаблона
+            pattern_id = cur.lastrowid
+
+            # Вставка записи в таблицу pattern_holiday
+            cur.execute("INSERT INTO pattern_holiday (pattern_id, holiday_id) VALUES (?, ?)", (pattern_id, holiday_id))
+
+            # Сохранение изменений
+            con.commit()
+            result = f"Шаблон с id {pattern_id} добавлен для праздника с id {holiday_id}"
             return result
         except sqlite3.Error as error:
-            print("Ошибка при работе с SQLite", error)
+            print("Ошибка в добавлении шаблона", error)
+            result = f"Ошибка в добавлении шаблона, {error}"
+            return result
+        finally:
+            cur.close()
 
 
-    def delete_template(id):
+    async def delete_template(id):
         """ Ф-я удаления шаблона """
         cur = con.cursor()
         try:
@@ -101,3 +116,5 @@ class ActionORM:
             return result
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+        finally:
+            cur.close()
