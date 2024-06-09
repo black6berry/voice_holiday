@@ -11,7 +11,7 @@ async def send_request_gradio(
         index_rate=1,
         protect=0.33,
         api_name="/tts"
-        ) -> str:
+        ) -> dict:
     """
     Ф-я отправки запроса для генерации аудиодорожки
     Parameters:
@@ -30,7 +30,7 @@ async def send_request_gradio(
         - [Audio] result: str (filepath on your computer (or URL) of file)
     """
     try:
-        if model_name == "Anya" or model_name == "Olya" and model_name is not None:
+        if model_name in ["Anya", "Olya"]:
             tts_voice = 'ru-RU-SvetlanaNeural-Female'
         else:
             tts_voice = 'ru-RU-DmitryNeural-Male'
@@ -38,7 +38,7 @@ async def send_request_gradio(
 
         if len(tts_text) > 280:
             raise ValueError("Слишком много текста, напиши покорче")
-        client =  Client("http://172.16.0.2:7860/")
+        client =  Client("http://172.16.0.2:7864/")
         result = client.predict(
             model_name=model_name,
             speed=speed,
@@ -49,7 +49,24 @@ async def send_request_gradio(
             index_rate=index_rate,
             protect=protect,
             api_name=api_name)
+        
+        output_info = result[0]
+        mp3_path = result[1]
+        wav_path = result[2]
+        
+        result = {}
+        result['output_info'] = output_info 
+        result['mp3_path'] = mp3_path 
+        result['wav_path'] = wav_path
         print(result)
+        
         return result
     except Exception as e:
         print(f"Не удалось отправить запрос на сервер\n{e}")
+
+# # Запуск асинхронной функции
+# async def main():
+#     result = await send_request_gradio(model_name='Anya', tts_text="Привет")
+#     # print(result)
+# # Вызов основного асинхронного метода
+# asyncio.run(main())

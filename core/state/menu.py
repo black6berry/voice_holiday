@@ -24,3 +24,4 @@ class MenuState(StatesGroup):
     get_lastname = State()
     get_patronymic = State()
     get_sender = State()
+    confirm_result = State()
