@@ -116,5 +116,7 @@ class ActionORM:
             return result
         except sqlite3.Error as error:
             print("Ошибка при работе с SQLite", error)
+            result = f"Ошибка в удалении шаблона, {error}"
+            return result
         finally:
             cur.close()

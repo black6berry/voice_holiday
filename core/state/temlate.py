@@ -1,7 +1,8 @@
 from aiogram.fsm.state import State, StatesGroup
 
-class AddTemplate(StatesGroup):
+class ActionTemplate(StatesGroup):
     """Класс для сбора данных при добавлении шаблона"""
-    get_holiday_id = State()
-    get_template_text = State()
+    action = State()
+    get_holiday = State()
+    get_template = State()
     confirm_template_text = State()

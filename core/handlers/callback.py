@@ -13,6 +13,7 @@ from core.keyboard import text_kb
 from aiogram.filters.callback_data import CallbackData
 from core.utils.workstr import StrRegular
 from services import gradio
+from core.filters.is_admin import IsAdmin
 
 
 router = Router()
@@ -45,7 +46,6 @@ async def show_type_holiays(callback: CallbackQuery, bot: Bot, state: FSMContext
         reply_markup=builder.as_markup())
     await callback.answer()
     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-
     await state.set_state(MenuState.get_template)
 
 
@@ -56,38 +56,46 @@ async def go_back_holiday(callback: CallbackQuery, bot: Bot, state: FSMContext) 
     await show_type_holiays(callback, bot, state)
 
 
-
 @router.callback_query(StateFilter(MenuState.get_template), F.data.startswith("holiday"))
 async def show_templates(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     """Ф-я отображения шаблонов праздника"""
-    if callback.data != "назад":
+    if callback.data == "назад":
+        data = await state.get_data()
+        holiday = data.get("holiday")
+        holiday_unpacked = HolidayCallback.unpack(holiday)
+        holiday_id = holiday_unpacked.id
+        await callback.answer()
+        await show_type_holiays(callback, bot, state)
+
+    else:
         await state.update_data(holiday=callback.data)
         callback_unpacked = HolidayCallback.unpack(callback.data)
         holiday_id = callback_unpacked.id
-    else:
-        pass
 
-    templates = await ActionORM.get_templates(holiday_id)
+        data = await state.get_data()
+        print(data)
+        templates = await ActionORM.get_templates(holiday_id)
 
-    builder = InlineKeyboardBuilder()
-    for template in templates:
-        builder.button(text=f"Шаблон {str(template['id'])}", callback_data=HolidayTemplateCallback(template=f"Шаблон {str(template['id'])}", id=template['id'], level=1).pack())
-    builder.adjust(2)
+        builder = InlineKeyboardBuilder()
+        for template in templates:
+            builder.button(text=f"Шаблон {str(template['id'])}", callback_data=HolidayTemplateCallback(template=f"Шаблон {str(template['id'])}", id=template['id'], level=1).pack())
+        builder.adjust(2)
 
-    another_builder = InlineKeyboardBuilder()
-    another_builder.button(text=text_kb.menu_back, callback_data="назад")
-    builder.attach(another_builder)
+        another_builder = InlineKeyboardBuilder()
+        another_builder.button(text=text_kb.menu_back, callback_data="назад")
+        builder.attach(another_builder)
 
-    msg_txt = "Выбери шаблон поздравления"
+        msg_txt = "Выбери шаблон поздравления"
 
-    await bot.send_photo(
-        chat_id=callback.message.chat.id,
-        photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA',
-        caption=msg_txt,
-        reply_markup=builder.as_markup())
-    await callback.answer()
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-    await state.set_state(MenuState.get_template_text)
+        await bot.send_photo(
+            chat_id=callback.message.chat.id,
+            photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA',
+            caption=msg_txt,
+            reply_markup=builder.as_markup())
+        await callback.answer()
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await state.set_state(MenuState.get_template_text)
+
 
 
 @router.callback_query(StateFilter(MenuState.get_template_text), F.data.lower() == "назад")
@@ -95,7 +103,6 @@ async def go_back_show_templates(callback: CallbackQuery, bot: Bot, state: FSMCo
     """Перейти в выбор праздника НАЗАД"""
     await state.set_state(MenuState.get_template)
     await show_templates(callback, bot, state)
-
 
 
 @router.callback_query(StateFilter(MenuState.get_template_text), F.data.startswith('holiday_template'))
@@ -120,7 +127,6 @@ async def show_template_txt(callback: CallbackQuery, bot: Bot, state: FSMContext
         reply_markup=choose_and_back_ikb())
     await callback.answer()
     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-
     await state.set_state(MenuState.get_voice)
 
 
@@ -152,7 +158,6 @@ async def show_voice_dictors(callback: CallbackQuery, bot: Bot, state: FSMContex
         reply_markup=builder.as_markup())
     await callback.answer()
     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-
     await state.set_state(MenuState.confirm_voice)
 
 
@@ -218,8 +223,6 @@ async def get_firstname_user_msg(message: Message, bot: Bot, state: FSMContext):
             await bot.send_message(message.chat.id, msg_txt)
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
-
-
 
 
 @router.message(StateFilter(MenuState.get_lastname))
