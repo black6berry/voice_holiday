@@ -30,7 +30,7 @@ class ActionORM:
             cur.close()
 
 #------------------    CRUD шаблонов   -------------------
-    async def get_templates(id) -> dict:
+    async def get_templates(holiday_id: int) -> dict:
         """ Ф-я получения праздников """
         cur = con.cursor()
         try:
@@ -42,7 +42,7 @@ class ActionORM:
                 WHERE ph.holiday_id == ?
                 LIMIT 50;
             """
-            cur.execute(query, (id,))
+            cur.execute(query, (holiday_id,))
             templates = cur.fetchall()
             templates_list = []
             for template in templates:
@@ -60,7 +60,7 @@ class ActionORM:
             cur.close()
 
 
-    async def get_template(id) -> str:
+    async def get_template(pattern_id) -> str:
         """ Ф-я  Получение шаблона """
         cur = con.cursor()
         try:
@@ -68,7 +68,7 @@ class ActionORM:
                 SELECT "text" FROM pattern
                 WHERE id == ?
             """
-            cur.execute(query, (id,))
+            cur.execute(query, (pattern_id,))
             template_text = cur.fetchall()
             # print(template_text)
 

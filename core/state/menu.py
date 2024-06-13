@@ -14,7 +14,6 @@ class MenuState(StatesGroup):
         9.получение отчества пользователя - get_patronymic
         10.получение данных отпарвителя - get_sender
     """
-    main_menu = State()
     get_holiday = State()
     get_template = State()
     get_template_text = State()

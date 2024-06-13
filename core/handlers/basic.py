@@ -16,9 +16,9 @@ router = Router()
 @router.message(StateFilter('*'), F.text.lower().in_({"главное меню", "меню", "начать"}))
 async def get_start(message: Message, bot: Bot, state: FSMContext) -> None:
     """ Общая команда старта """  
-    await state.set_state(MenuState.main_menu)
     msg_txt = "Voice Holiday - Сервис для поздравлений пользователей по системе радиовещания :D"
     await bot.send_photo(chat_id=message.chat.id, photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA', caption=msg_txt, reply_markup=main_menu_ikb())
+    await state.set_state(MenuState.get_holiday)
 
 @router.message(Command("help"))
 async def get_help_me(message: Message, bot: Bot) -> None:

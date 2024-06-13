@@ -231,7 +231,7 @@ async def yes_add_or_delete_template_text(callback: CallbackQuery, bot: Bot, sta
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         await state.clear()
 
-    if action == "❌ Удалить шаблон":  
+    if action == "❌ Удалить шаблон":
         result = await ActionORM.delete_template(pattern_id=template_id)
         print(result)
         await callback.answer()
