@@ -27,10 +27,9 @@ async def admin_login(message: types.Message, state: FSMContext) -> None:
         ],
     ], resize_keyboard=True)
     await message.answer('Вы успешно зашли в админ-панель!', reply_markup=keyboard)
-    await state.set_state(ActionTemplate.action)
 
 
-@router.message(IsAdmin())
+@router.message(IsAdmin(), F.text.in_({"✅ Добавить шаблон", "❌ Удалить шаблон"}))
 async def show_type_holidays_for_create(message: Message, bot: Bot, state: FSMContext) -> None:
     """Ф-я вывода праздников"""
     holidays = await ActionORM.get_holidays()
@@ -126,109 +125,136 @@ async def call_type_holiday(callback: CallbackQuery, bot: Bot, state: FSMContext
 @router.message(IsAdmin(), StateFilter(ActionTemplate.get_template))
 async def add_template_text(message: Message, bot: Bot, state: FSMContext) -> None:
     """Ф-я для добавления шаблонов поздравлений"""
+    data = await state.get_data()
+    # print(data)
+    action = data.get("action")
     text = message.text
     # print(text)
-    if text is not None and text.strip() != '':
-        if len(text) < 280:
-            await state.update_data(template_text=text)
-            data = await state.get_data()
-            print(data)
-            data_holiday = data.get('holiday')
-            data_holiday_unpacked = HolidayCallback.unpack(data_holiday)
-            holiday = data_holiday_unpacked.holiday
-            template_text = data.get('template_text')
+    if action == "✅ Добавить шаблон":
+        if text is not None and text.strip() != '':
+            if len(text) < 280:
+                await state.update_data(template_text=text)
+                data = await state.get_data()
+                print(data)
+                data_holiday = data.get('holiday')
+                data_holiday_unpacked = HolidayCallback.unpack(data_holiday)
+                holiday = data_holiday_unpacked.holiday
+                template_text = data.get('template_text')
 
-            builder = InlineKeyboardBuilder()
-            builder.button(text="✅ Да", callback_data="да")
-            builder.button(text="❌ Нет", callback_data="нет")
-            builder.adjust(2)
+                builder = InlineKeyboardBuilder()
+                builder.button(text="✅ Да", callback_data="да")
+                builder.button(text="❌ Нет", callback_data="нет")
+                builder.adjust(2)
 
-            txt = f"""
-                Вы действительно хотите добавить шаблон поздравления 
-                ***
-                {template_text}
-                ***
-                Для праздника {holiday}?
-            """
-            msg_txt = dedent(txt)
-            await bot.send_message(chat_id=message.chat.id, text=msg_txt, reply_markup=builder.as_markup())
-            await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-            await state.set_state(ActionTemplate.confirm_template_text)
+                txt = f"""
+                    Вы действительно хотите добавить шаблон поздравления 
+                    ***
+                    {template_text}
+                    ***
+                    Для праздника {holiday}?
+                """
+                msg_txt = dedent(txt)
+                await bot.send_message(chat_id=message.chat.id, text=msg_txt, reply_markup=builder.as_markup())
+                await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+                await state.set_state(ActionTemplate.confirm_template_text)
+            else:
+                bot.send_message(chat_id=message.chat.id, text="Текст шаблона первышает ограничения в 280 символов")
         else:
-            bot.send_message(chat_id=message.chat.id, text="Текст шаблона первышает ограничения в 280 символов")
-    else:
-        bot.send_message(chat_id=message.chat.id, text="Текст шаблона не может быть пустым")
+            bot.send_message(chat_id=message.chat.id, text="Текст шаблона не может быть пустым")
 
 
 @router.callback_query(IsAdmin(), StateFilter(ActionTemplate.get_template))
-async def delete_template(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:  
+async def delete_template(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     """Ф-я для удаления шаблонов поздравлений"""
+    states = await state.get_state()
+    print(states)
+
     data = await state.get_data()
+    action = data.get('action')
+    # print(action)
+    if action == "❌ Удалить шаблон":
+        data_holiday = data.get('holiday')
+        data_holiday_unpacked = HolidayCallback.unpack(data_holiday)
+        holiday = data_holiday_unpacked.holiday
 
-    data_holiday = data.get('holiday')
-    data_holiday_unpacked = HolidayCallback.unpack(data_holiday)
-    holiday = data_holiday_unpacked.holiday
+        unpacked_callback = HolidayTemplateCallback.unpack(callback.data)
+        await state.update_data(template_id=unpacked_callback.id)
+        template_text = await ActionORM.get_template(unpacked_callback.id)
 
-    unpacked_callback = HolidayTemplateCallback.unpack(callback.data)
-    await state.update_data(template_id=unpacked_callback.id)
-    template_text = await ActionORM.get_template(unpacked_callback.id)
+        if template_text and isinstance(template_text[0][0], str):
+            template_txt = template_text[0][0]
+            await state.update_data(confirm_template=template_text)
+        else:
+            template_txt = "Текст шаблона не найден."
 
-    if template_text and isinstance(template_text[0][0], str):
-        template_txt = template_text[0][0]
-        await state.update_data(confirm_template=template_text)
-    else:
-        template_txt = "Текст шаблона не найден."
+        builder = InlineKeyboardBuilder()
+        builder.button(text="✅ Да", callback_data="да")
+        builder.button(text="❌ Нет", callback_data="нет")
+        builder.adjust(2)
 
-    builder = InlineKeyboardBuilder()
-    builder.button(text="✅ Да", callback_data="да")
-    builder.button(text="❌ Нет", callback_data="нет")
-    builder.adjust(2)
-
-    txt = f"""
-        Вы действительно хотите удалить шаблон поздравления 
-        ***
-        {template_txt}
-        ***
-        Для праздника {holiday}?
-    """
-    msg_txt = dedent(txt)
-    await bot.send_message(chat_id=callback.message.chat.id, text=msg_txt, reply_markup=builder.as_markup())
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-    await state.set_state(ActionTemplate.confirm_template_text)
+        txt = f"""
+            Вы действительно хотите удалить шаблон поздравления 
+            ***
+            {template_txt}
+            ***
+            Для праздника {holiday}?
+        """
+        msg_txt = dedent(txt)
+        await bot.send_message(chat_id=callback.message.chat.id, text=msg_txt, reply_markup=builder.as_markup())
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await state.set_state(ActionTemplate.confirm_template_text)
 
 
 @router.callback_query(IsAdmin(), StateFilter(ActionTemplate.confirm_template_text), F.data.lower() == "да")
-async def yes_add_template_text(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    """Ф-я обработки при подтверждении добавления шаблона праздника"""
+async def yes_add_or_delete_template_text(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Ф-я обработки при подтверждении добавления/удаления шаблона праздника"""
+    states = await state.get_state()
+    print(states)
+
     data = await state.get_data()
+    print(data)
+    action = data.get('action')
+    # print(action)
+
     data_holiday = data.get('holiday')
     data_holiday_unpacked = HolidayCallback.unpack(data_holiday)
     holiday_id = data_holiday_unpacked.id
+    template_id = data.get('template_id')
+    # print(holiday_id)
     template_text = data.get('template_text')
-    # Вызов функции добавления шаблона в БД и передача параметра
-    result = await ActionORM.add_template_for_holiday(holiday_id=holiday_id, pattern_text=template_text)
-    await callback.answer()
-    await bot.send_message(chat_id=callback.message.chat.id, text=result)
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+    # print(template_text)
+
+    if action == "✅ Добавить шаблон":
+        result = await ActionORM.add_template_for_holiday(holiday_id=holiday_id, pattern_text=template_text)
+        await callback.answer()
+        await bot.send_message(chat_id=callback.message.chat.id, text=result)
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await state.clear()
+
+    if action == "❌ Удалить шаблон":  
+        result = await ActionORM.delete_template(pattern_id=template_id)
+        print(result)
+        await callback.answer()
+        await bot.send_message(chat_id=callback.message.chat.id, text=result)
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await state.clear()
 
 
 @router.callback_query(IsAdmin(), StateFilter(ActionTemplate.confirm_template_text), F.data.lower() == "нет")
-async def no_add_template_text(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    """Ф-я обработки при отклонении добавления шаблона праздника"""
-    msg_txt = "Создание шаблона отменено"
-    await bot.send_message(chat_id=callback.message.chat.id, text=msg_txt)
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-
-
-@router.callback_query(IsAdmin(), StateFilter(ActionTemplate.confirm_template_text), F.data.lower() == "да")
-async def yes_delete_template_text(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    """Ф-я обработки при подтверждении удаления шаблона праздника"""
+async def no_add_or_delete_template_text(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Ф-я обработки при отклонении добавления/удаления шаблона праздника"""
     data = await state.get_data()
-    data_holiday = data.get('holiday')
-    data_holiday_unpacked = HolidayCallback.unpack(data_holiday)
-    holiday_id = data_holiday_unpacked.id
-    # Вызов функции удаления шаблона в БД и передача параметра
-    result = await ActionORM.delete_template(holiday_id)
-    await callback.answer()
-    await bot.send_message(chat_id=callback.message.chat.id, text=result)
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+    action = data.get('action')
+    # print(action)
+    if action == "✅ Добавить шаблон":
+        msg_txt = "Создание шаблона отменено"
+        await bot.send_message(chat_id=callback.message.chat.id, text=msg_txt)
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        state.clear()
+
+    if action == "❌ Удалить шаблон":
+        msg_txt = "Удаление шаблона отменено))"
+        await callback.answer()
+        await bot.send_message(chat_id=callback.message.chat.id, text=msg_txt)
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        state.clear()

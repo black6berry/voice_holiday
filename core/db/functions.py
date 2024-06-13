@@ -103,18 +103,20 @@ class ActionORM:
             cur.close()
 
 
-    async def delete_template(id):
+    async def delete_template(pattern_id: int) -> str:
         """ Ф-я удаления шаблона """
         cur = con.cursor()
         try:
-            query = """
-                DELETE FROM pattern
-                WHERE id=?;
-            """
-            cur.execute(query, (id,))
-            result = cur.fetchone()
+            cur.execute("DELETE FROM pattern_holiday WHERE pattern_id=?;", (pattern_id,))
+            # Удаление из таблицы pattern
+            cur.execute("DELETE FROM pattern WHERE id=?;", (pattern_id,))
+            # Завершение транзакции
+            con.commit()
+            result = "Удаление завершено успешно"
             return result
         except sqlite3.Error as error:
+            # Откат транзакции в случае ошибки
+            # con.rollback()
             print("Ошибка при работе с SQLite", error)
             result = f"Ошибка в удалении шаблона, {error}"
             return result

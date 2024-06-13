@@ -1,4 +1,5 @@
 import os
+import re
 from main import BASE_DIR
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram import Bot, Router, F
@@ -324,11 +325,13 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
     try:
         sender = message.text
         result = await StrRegular.contains_only_non_digits(message.text)
-
+        
         if result is not False:
+            
             # print(sender)
             await state.update_data(sender=sender)
-            msg_txt = "Данные записаны, ваш запрос отправлен, ожидайте проверки модератором"
+            # msg_txt = "Данные записаны, ваш запрос отправлен, ожидайте проверки модератором"
+            msg_txt = " Идет генерация запроса..."
             await bot.send_message(message.chat.id, msg_txt)
 
             data = await state.get_data()
@@ -355,34 +358,19 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
             await bot.send_audio(chat_id=message.chat.id, audio=mp3_file, caption="Вариант 1")
             await bot.send_audio(chat_id=message.chat.id, audio=wav_file, caption="Вариант 2")
 
-            builder = InlineKeyboardBuilder()
-            builder.button(text="1️⃣", callback_data="вариант 1")
-            builder.button(text="2️⃣", callback_data="вариант 2")
-            builder.adjust(2)
-
-            await bot.send_message(chat_id=message.chat.id, text="Какой вариант голосового поздравления выбираете?", reply_markup=builder.as_markup())
-            await state.get_state(MenuState.confirm_result)
-
         else:
             msg_txt = "Имя отправителя должно быть строкой :D"
             await bot.send_message(message.chat.id, msg_txt)
 
-        await state.clear()
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
 
 
-@router.callback_query(StateFilter(MenuState.confirm_result))
-async def confirm_result(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    """Ф-я обработка результата файла"""
-    await state.update_data(result=callback.data)
-    if callback.data == "Вариант 1":
-        await callback.answer()
-        await bot.send_message(chat_id=callback.chat.id, text="Вы выбрали вариант 1")
-
-    if callback.data == "Вариант 2":
-        await callback.answer()
-        await bot.send_message(chat_id=callback.chat.id, text="Вы выбрали вариант 2")
+@router.message(StateFilter(MenuState.get_sender))
+async def get_sender_data_user_answer_for_message(message: Message, bot: Bot, state: FSMContext) -> None:
+    """ Получение данных поздравляющего """
+    msg_txt = " Идет генерация запроса..."
+    await bot.send_message(message.chat.id, msg_txt)
 
 
 @router.callback_query(MyCallback.filter(F.text.lower().in_({"главное меню", "назад"})), StateFilter(MenuState.main_menu))

@@ -34,7 +34,6 @@ async def send_request_gradio(
             tts_voice = 'ru-RU-SvetlanaNeural-Female'
         else:
             tts_voice = 'ru-RU-DmitryNeural-Male'
-            model_name = "Tom"
 
         if len(tts_text) > 280:
             raise ValueError("Слишком много текста, напиши покорче")
