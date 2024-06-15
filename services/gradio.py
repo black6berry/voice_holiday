@@ -37,7 +37,7 @@ async def send_request_gradio(
 
         if len(tts_text) > 280:
             raise ValueError("Слишком много текста, напиши покорче")
-        client =  Client("http://172.16.0.2:7864/")
+        client =  Client("http://172.16.0.2:7893/")
         result = client.predict(
             model_name=model_name,
             speed=speed,
