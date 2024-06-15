@@ -32,23 +32,30 @@ async def show_holidays(callback: CallbackQuery, bot: Bot, state: FSMContext) ->
         msg_txt = "Выбери праздник или напиши свой текст поздравления"
         holidays = await ActionORM.get_holidays()
 
-        builder = InlineKeyboardBuilder()
-        for holiday in holidays:
-            builder.button(text=holiday['name'], callback_data=HolidayCallback(holiday=holiday['name'], id=holiday['id']).pack())
-        builder.adjust(2)
+        if holidays is not None:
 
-        another_builder = InlineKeyboardBuilder()
-        another_builder.button(text=text_kb.create_holiday_yourself, callback_data="Свой шаблон")
-        builder.attach(another_builder)
+            builder = InlineKeyboardBuilder()
+            for holiday in holidays:
+                builder.button(text=holiday['name'], callback_data=HolidayCallback(holiday=holiday['name'], id=holiday['id']).pack())
+            builder.adjust(2)
 
-        await bot.send_photo(
-            chat_id=callback.message.chat.id,
-            photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA',
-            caption=msg_txt,
-            reply_markup=builder.as_markup())
-        await callback.answer()
-        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-        await state.set_state(MenuState.get_template)
+            another_builder = InlineKeyboardBuilder()
+            another_builder.button(text=text_kb.create_holiday_yourself, callback_data="Свой шаблон")
+            builder.attach(another_builder)
+
+            await bot.send_photo(
+                chat_id=callback.message.chat.id,
+                photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA',
+                caption=msg_txt,
+                reply_markup=builder.as_markup())
+            await callback.answer()
+            await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+            await state.set_state(MenuState.get_template)
+        else:
+            await bot.send_message(chat_id=callback.message.chat.id, text="Праздников для поздравлений еще нет))")
+            await callback.answer()
+            await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+            
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
         await bot.send_message(chat=callback.message.chat.id, text=f"Ошибка в обработке данных {e}")
