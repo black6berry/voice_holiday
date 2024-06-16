@@ -1,7 +1,8 @@
 import os
 import re
+from textwrap import dedent
 from main import BASE_DIR
-from aiogram.types import Message, CallbackQuery, FSInputFile
+from aiogram.types import Message, CallbackQuery, FSInputFile, ReplyKeyboardRemove
 from aiogram import Bot, Router, F
 from aiogram.fsm.context import FSMContext
 from core.keyboard.keyboard import  choose_and_back_ikb, main_menu_ikb
@@ -139,14 +140,14 @@ async def show_template_txt(callback: CallbackQuery, bot: Bot, state: FSMContext
         current_state = await state.get_state()
         print(current_state)
 
-
         confirm_template_data = data.get('confirm_template_data')
         unpacked_callback = HolidayTemplateCallback.unpack(confirm_template_data)
         print(f"unpacked data {unpacked_callback}")
         template_text = await ActionORM.get_template(unpacked_callback.id)
+        print(template_text)
 
-        if template_text and isinstance(template_text[0][0], str):
-            template_txt = template_text[0][0]
+        if template_text and isinstance(template_text, str):
+            template_txt = template_text
             await state.update_data(confirm_template=template_text)
         else:
             template_txt = "Текст шаблона не найден."
@@ -270,9 +271,9 @@ async def go_back_show_voice_dictors(callback: CallbackQuery, bot: Bot, state: F
 
 @router.callback_query(StateFilter(MenuState.get_firstname), F.data.lower() == "выбрать")
 async def get_firstname_user(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Обработка callback кнопки"""
     try: 
         print(callback.data)
-        """Обработка callback кнопки"""
         msg_txt = "Введите имя человека которого собираетесь поздравить"
         await bot.send_message(callback.message.chat.id, msg_txt)
         await callback.answer()
@@ -353,7 +354,6 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
         result = await StrRegular.contains_only_non_digits(message.text)
         
         if result is not False:
-            
             # print(sender)
             await state.update_data(sender=sender)
             # msg_txt = "Данные записаны, ваш запрос отправлен, ожидайте проверки модератором"
@@ -362,7 +362,7 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
 
             data = await state.get_data()
             model = data.get('dictor')
-            text = data.get('confirm_template')[0][0]
+            text = data.get('confirm_template')
             firstname = data.get('firstname')
             lastname = data.get('lastname')
             patronymic = data.get('patronymic')
@@ -384,13 +384,86 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
             await bot.send_audio(chat_id=message.chat.id, audio=mp3_file, caption="Вариант 1")
             await bot.send_audio(chat_id=message.chat.id, audio=wav_file, caption="Вариант 2")
 
+            await state.clear()
         else:
             msg_txt = "Имя отправителя должно быть строкой :D"
             await bot.send_message(message.chat.id, msg_txt)
-
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
         await bot.send_message(chat=message.chat.id, text=f"Ошибка в обработке данных {e}")
+
+
+@router.callback_query(StateFilter(MenuState.get_template), F.data.in_({"Свой шаблон", "изменить"}))
+async def get_own_template(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Получить шаблон от пользователя"""
+    try:
+        txt = """
+            Напишите шаблон для праздника\n
+            Доступны следующие параметры:
+            {firstname} - Имя поздравляемого
+            {lastname} - Фамилия поздравляемого
+            {patronymic} - Отчество поздравляемого
+            {sender} - Данные поздравителя\n
+            Пример: Привет {firstname} {patronymic}, поздравляю тебя с твоим днем!
+            """
+        msg_txt = dedent(txt)
+        await bot.send_photo(
+            chat_id=callback.message.chat.id,
+            photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA',
+            caption=msg_txt,
+            reply_markup=ReplyKeyboardRemove())
+        await callback.answer()
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await state.set_state(MenuState.get_template_text)
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
+        await bot.send_message(chat=callback.message.chat.id, text=f"Ошибка в обработке данных {e}")
+
+
+@router.message(StateFilter(MenuState.get_template_text))
+async def get_own_template_text(message: Message, bot: Bot, state: FSMContext) -> None:
+    """Ф-я получения текста пользовательского шаблона"""
+    try:
+        own_template = message.text
+        if own_template is not None and own_template != "":
+            await state.update_data(own_template=own_template)
+            txt = f"""
+                Шаблон правильный?
+                --------------------------------
+                {own_template}
+            """
+            msg_txt = dedent(txt)
+            builder = InlineKeyboardBuilder()
+            builder.button(text=text_kb.menu_edit, callback_data="изменить")
+            builder.button(text=text_kb.menu_confirm, callback_data="подтвердить")
+
+            await bot.send_message(chat_id=message.chat.id, 
+                            text=msg_txt,
+                            reply_markup=builder.as_markup())
+            
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
+        await bot.send_message(chat=message.chat.id, text=f"Ошибка в обработке данных {e}")
+
+
+@router.callback_query(StateFilter(MenuState.get_template_text))
+async def get_own_template_text(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """Ф-я получения текста пользовательского шаблона"""
+    try:
+        if callback.data == "изменить":
+            await state.set_state(MenuState.get_holiday)
+            await get_own_template(callback, bot, state)
+
+        if callback.data == "подтвердить":
+            data = await state.get_data()
+            own_template = data.get('own_template')
+            await state.update_data(confirm_template=own_template)
+            await state.set_state(MenuState.get_voice)
+            await show_voice_dictors(callback, bot, state)
+            
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
+        await bot.send_message(chat=callback.message.chat.id, text=f"Ошибка в обработке данных {e}")
 
 
 @router.message(StateFilter(MenuState.get_sender))
