@@ -266,9 +266,9 @@ async def add_template_text(message: Message, bot: Bot, state: FSMContext) -> No
                     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
                     await state.set_state(ActionTemplate.confirm_template_text)
                 else:
-                    bot.send_message(chat_id=message.chat.id, text="Текст шаблона первышает ограничения в 280 символов")
+                    await bot.send_message(chat_id=message.chat.id, text="Текст шаблона первышает ограничения в 280 символов")
             else:
-                bot.send_message(chat_id=message.chat.id, text="Текст шаблона не может быть пустым")
+                await bot.send_message(chat_id=message.chat.id, text="Текст шаблона не может быть пустым")
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
         await bot.send_message(chat=message.chat.id, text=f"Ошибка в обработке данных {e}")
