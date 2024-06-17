@@ -30,7 +30,7 @@ async def send_request_gradio(
         - [Audio] result: str (filepath on your computer (or URL) of file)
     """
     try:
-        if model_name in ["Anya", "Olya"]:
+        if model_name in ["Anya", "Polina"]:
             tts_voice = 'ru-RU-SvetlanaNeural-Female'
         else:
             tts_voice = 'ru-RU-DmitryNeural-Male'

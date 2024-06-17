@@ -316,18 +316,22 @@ async def get_lastname_user(message: Message, bot: Bot, state: FSMContext) -> No
             # print(lastname)
             await state.update_data(lastname=lastname)
             msg_txt = "Введите отчество человека которого собираетесь поздравить"
-            await bot.send_message(message.chat.id, msg_txt)
+
+            builder = InlineKeyboardBuilder()
+            builder.button(text="Нет отчества", callback_data="Нет отчества")
+
+            await bot.send_message(chat_id=message.chat.id, text=msg_txt, reply_markup=builder.as_markup())
             await state.set_state(MenuState.get_patronymic)
         else: 
             msg_txt = "Введи фамилию без лишних символов и чисел :D"
-            await bot.send_message(message.chat.id, msg_txt)
+            await bot.send_message(chat_id=message.chat.id, text=msg_txt)
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
         await bot.send_message(chat=message.chat.id, text=f"Ошибка в обработке данных {e}")
 
 
 @router.message(StateFilter(MenuState.get_patronymic))
-async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> None:
+async def get_patronymic_user(message: Message, callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     """ Получение отчества пользователя которого поздравляем """
     try:
         patronymic = message.text
@@ -344,6 +348,22 @@ async def get_patronymic_user(message: Message, bot: Bot, state: FSMContext) -> 
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
         await bot.send_message(chat=message.chat.id, text=f"Ошибка в обработке данных {e}")
+
+
+@router.callback_query(StateFilter(MenuState.get_patronymic), F.data.lower() == "нет отчества")
+async def write_empty_patronymic_user_(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
+    """ Запись пустой строки вместо отчества пользователя """
+    try:
+        # Ответ на нажатую кнопку чтоб не показывались часики
+        await callback.answer()
+        patronymic = ""
+        await state.update_data(patronymic=patronymic)
+        msg_txt = "Введите данные поздравляющего"
+        await bot.send_message(chat_id=callback.message.chat.id, text=msg_txt)
+        await state.set_state(MenuState.get_sender)
+    except ValueError as e:
+        print(f"Ошибка в обработке данных {e}")
+        await bot.send_message(chat_id=callback.message.chat.id, text=f"Ошибка в обработке данных {e}")
 
 
 @router.message(StateFilter(MenuState.get_sender))
@@ -381,8 +401,8 @@ async def get_sender_data_user(message: Message, bot: Bot, state: FSMContext) ->
             wav_filename = os.path.basename(wav_path_result)
             wav_file = FSInputFile(wav_path_result, wav_filename)
             
-            await bot.send_audio(chat_id=message.chat.id, audio=mp3_file, caption="Вариант 1")
-            await bot.send_audio(chat_id=message.chat.id, audio=wav_file, caption="Вариант 2")
+            # await bot.send_audio(chat_id=message.chat.id, audio=mp3_file, caption="Вариант 1")
+            await bot.send_audio(chat_id=message.chat.id, audio=wav_file)
 
             await state.clear()
         else:
