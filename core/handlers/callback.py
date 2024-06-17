@@ -185,6 +185,8 @@ async def show_voice_dictors(callback: CallbackQuery, bot: Bot, state: FSMContex
     """Перейти в выбор праздничного шаблона НАЗАД"""
     try:
         data = await state.get_data()
+        confirm_template = data.get('confirm_template')
+        own_template= data.get('own_template')
         print(data)
         current_state = await state.get_state()
         print(current_state)
@@ -198,12 +200,8 @@ async def show_voice_dictors(callback: CallbackQuery, bot: Bot, state: FSMContex
         for voice in voices_dictors:
             builder.button(text=f"{voice}", callback_data=f"dictors:{voice}")
         builder.adjust(2)
-
-        another_builder = InlineKeyboardBuilder()
-        another_builder.button(text=text_kb.menu_back, callback_data="back_template_text")
-        builder.attach(another_builder)
+        
         msg_txt = "Выберите голос диктора"
-
         await bot.send_photo(
             chat_id=callback.message.chat.id,
             photo='AgACAgIAAxkBAAM5Zg8ZGlMXFVPmCpCP-rfk3DstbKEAAtHaMRsqD3hIhX3bOM8WgioBAAMCAAN5AAM0BA',
@@ -212,18 +210,6 @@ async def show_voice_dictors(callback: CallbackQuery, bot: Bot, state: FSMContex
         await callback.answer()
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         await state.set_state(MenuState.confirm_voice)
-    except ValueError as e:
-        print(f"Ошибка в обработке данных {e}")
-        await bot.send_message(chat=callback.message.chat.id, text=f"Ошибка в обработке данных {e}")
-
-
-@router.callback_query(StateFilter(MenuState.confirm_voice), F.data.lower() == "back_template_text")
-async def go_back_show_template_txt(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
-    """Перейти в выбор праздника НАЗАД"""
-    try:
-        await state.set_state(MenuState.get_template_text)
-        await callback.answer()
-        await show_template_txt(callback, bot, state)
     except ValueError as e:
         print(f"Ошибка в обработке данных {e}")
         await bot.send_message(chat=callback.message.chat.id, text=f"Ошибка в обработке данных {e}")
