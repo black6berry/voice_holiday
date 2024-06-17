@@ -9,6 +9,7 @@ from core.utils.commands import set_command
 from core.handlers import basic, callback
 from core.handlers.admin import callback as admin_callback
 from core.db.db_sqllite import sql_start
+from core.db.main_data import MainData 
 from core.config.config import BOT_TOKEN, admins, ADMIN_ID_LIST
 
 load_dotenv()
@@ -47,6 +48,7 @@ async def main() -> None:
     dp.include_routers(basic.router, callback.router, admin_callback.router)
 
     sql_start()
+    MainData.insert_data()
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=['message', 'callback_query'])
