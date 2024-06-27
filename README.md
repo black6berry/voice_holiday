@@ -45,7 +45,6 @@
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -68,7 +67,7 @@ This section should list any major frameworks/libraries used to bootstrap your p
 * [![Python][Python.logo]][Python-url]
 * [![Gradio][Gradio.logo]][Gradio-url]
 * [![Sqlite3][Sqlite3.logo]][Sqlite3-url]
-* [![Pytorch][Pytorch.logo][Pytorch-url]
+* [![Pytorch][Pytorch.logo]][Pytorch-url]
 * [![Aiogram][Aiogram.logo]][Aiogram-url]
 * [![edge-tts][edge-tts.logo]][edge-tts-url]
 
@@ -145,34 +144,18 @@ Project Link: [https://github.com/black6berry/voice_holiday](https://github.com/
 
 
 
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [Python.logo]: https://img.shields.io/badge/Python-blue?style=for-the-badge&logo=python&logoColor=white
 [Python-url]: https://docs.python.org/3/
 [Gradio.logo]: https://img.shields.io/badge/Gradio-orange?style=for-the-badge&logo=gradio&logoColor=white
 [Gradio-url]: https://www.gradio.app/
-[Pytorch.logo]: https://img.shields.io/badge/Pytorch-black?style=for-the-badge&logo=gradio&logoColor=white
+[Pytorch.logo]: https://img.shields.io/badge/Pytorch-red?style=for-the-badge&logo=pytorcho&logoColor=white
 [Pytorch-url]: https://pytorch.org/
-[Sqlite3.logo]: https://img.shields.io/badge/Sqlite3-black?style=for-the-badge&logo=gradio&logoColor=white
+[Sqlite3.logo]: https://img.shields.io/badge/Sqlite3-blue?style=for-the-badge&logo=sqlite3&logoColor=white
 [Sqlite3-url]: https://docs.python.org/3/library/sqlite3.html
-[Aiogram.logo]: https://img.shields.io/badge/Aiogram-white?style=for-the-badge&logo=gradio&logoColor=blue
-[Aiogram.url]: https://aiogram.dev/
+[Aiogram.logo]: https://img.shields.io/badge/Aiogram-white?style=for-the-badge&logo=aiogram&logoColor=blue
+[Aiogram-url]: https://aiogram.dev/
+[edge-tts.logo]: https://img.shields.io/badge/edge-tts-white?style=for-the-badge&logo=edge-tts&logoColor=black
+[edge-tts-url]: https://microsoftedge.microsoft.com/addons/detail/edge-texttospeech/hflekgoopcceadjgcddhfcnhlgeajcii?hl=en-US%2F
 
